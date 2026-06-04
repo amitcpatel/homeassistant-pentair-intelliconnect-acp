@@ -4,8 +4,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.pentair_pool.const import FIELD_RA4, PARALLEL_UPDATES as PARALLEL_UPDATES
+from custom_components.pentair_pool.const import (
+    FIELD_IFS1,
+    FIELD_IFS3,
+    FIELD_RA4,
+    PARALLEL_UPDATES as PARALLEL_UPDATES,
+)
 
+from .main_pump import PentairPoolMainPumpRunningBinarySensor
 from .pump_running import PentairPoolPumpRunningBinarySensor
 from .status import PentairPoolAlarmBinarySensor, PentairPoolOnlineBinarySensor
 
@@ -24,8 +30,11 @@ async def async_setup_entry(
     coordinator = entry.runtime_data.coordinator
     entities = []
     for device_id, dev in (coordinator.data or {}).items():
+        fields = dev.get("fields") or {}
         entities.append(PentairPoolOnlineBinarySensor(coordinator, device_id))
         entities.append(PentairPoolAlarmBinarySensor(coordinator, device_id))
-        if FIELD_RA4 in (dev.get("fields") or {}):
+        if FIELD_RA4 in fields:
             entities.append(PentairPoolPumpRunningBinarySensor(coordinator, device_id))
+        if FIELD_IFS1 in fields or FIELD_IFS3 in fields:
+            entities.append(PentairPoolMainPumpRunningBinarySensor(coordinator, device_id))
     async_add_entities(entities)

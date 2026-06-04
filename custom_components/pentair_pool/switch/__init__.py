@@ -4,10 +4,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from custom_components.pentair_pool.const import FIELD_RA0, PARALLEL_UPDATES as PARALLEL_UPDATES
+from custom_components.pentair_pool.const import (
+    FIELD_RA0,
+    FIELD_RB0,
+    PARALLEL_UPDATES as PARALLEL_UPDATES,
+)
 
 from .pump import PentairPoolPumpSwitch
 from .schedule import PentairPoolDailyScheduleSwitch
+from .waterfall import PentairPoolWaterfallSwitch
 
 if TYPE_CHECKING:
     from custom_components.pentair_pool.data import PentairPoolConfigEntry
@@ -22,15 +27,17 @@ async def async_setup_entry(
 ) -> None:
     """Set up the switch platform.
 
-    Both switches are gated on the presence of `ra0` for that Pentair device,
-    so devices without a Relay-1 wired to the IntelliConnect won't produce
-    orphan entities.
+    Relay-1 pump + Daily Schedule switches are gated on `ra0`. The Relay-2
+    waterfall switch is gated independently on `rb0`, so installs without a
+    second relay won't get an orphan waterfall entity.
     """
     coordinator = entry.runtime_data.coordinator
     entities = []
     for device_id, dev in (coordinator.data or {}).items():
-        if FIELD_RA0 not in (dev.get("fields") or {}):
-            continue
-        entities.append(PentairPoolPumpSwitch(coordinator, device_id))
-        entities.append(PentairPoolDailyScheduleSwitch(coordinator, device_id))
+        fields = dev.get("fields") or {}
+        if FIELD_RA0 in fields:
+            entities.append(PentairPoolPumpSwitch(coordinator, device_id))
+            entities.append(PentairPoolDailyScheduleSwitch(coordinator, device_id))
+        if FIELD_RB0 in fields:
+            entities.append(PentairPoolWaterfallSwitch(coordinator, device_id))
     async_add_entities(entities)

@@ -103,5 +103,22 @@ HTD1_LABELS = {
     "4": "Schedule will run",  # tentative
 }
 
+# --- Relay 2 (aux relay; WATERFALL PUMP on the acp0118 install) --------------
+# Same field layout + state machine as Relay 1 (ra*). On this controller Relay 1
+# drives the pool LIGHTS and Relay 2 drives the WATERFALL pump. The ra0 state
+# values (RA0_*) are reused for rb0 since the firmware uses one relay state enum.
+FIELD_RB0 = "rb0"  # Relay2_Manual_Schedule (on/off + schedule mode)
+FIELD_RB4 = "rb4"  # Relay2_Power (watts, RO)
+FIELD_RBS0 = "rbs0"  # Relay2_Timer_Status (RO seconds)
+
+# --- IntelliFlo VSF main pump (if* bus; READ-ONLY telemetry) -----------------
+# The variable-speed main/filter pump reports on its own bus, independent of the
+# relays. Read-only here by design; speed/program writes are deliberately NOT
+# wired up yet (mis-writing VSF speed is the one genuinely risky op).
+FIELD_IFS1 = "ifs1"  # Running_Stopped (10 = running)
+FIELD_IFS3 = "ifs3"  # Actual_Power (watts)
+FIELD_IFS4 = "ifs4"  # Actual_Speed_Status (RPM)
+FIELD_IFS6 = "ifs6"  # Actual_Flow_VSF (GPM)
+
 # --- Salt cell boost ---------------------------------------------------------
 BOOST_RPM = "450"

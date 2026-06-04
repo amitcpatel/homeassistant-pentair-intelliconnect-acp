@@ -16,7 +16,11 @@ from custom_components.pentair_pool.const import (
     FIELD_ICS12,
     FIELD_ICS13,
     FIELD_ICS15,
+    FIELD_IFS3,
+    FIELD_IFS4,
+    FIELD_IFS6,
     FIELD_RA4,
+    FIELD_RB4,
     FIELD_T0,
     FIELD_T1,
     HTD1_LABELS,
@@ -175,6 +179,56 @@ SENSORS: tuple[tuple[str, PentairSensorDescription], ...] = (
             translation_key="salt_cell_model",
             has_entity_name=True,
             value_fn=lambda v: v,
+        ),
+    ),
+    # --- Waterfall pump (Relay 2) power -------------------------------------
+    (
+        FIELD_RB4,
+        PentairSensorDescription(
+            key="waterfall_pump_power",
+            name="Waterfall pump power",
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfPower.WATT,
+            has_entity_name=True,
+            value_fn=_as_int,
+        ),
+    ),
+    # --- IntelliFlo VSF main pump (read-only telemetry) ---------------------
+    (
+        FIELD_IFS3,
+        PentairSensorDescription(
+            key="main_pump_power",
+            name="Main pump power",
+            device_class=SensorDeviceClass.POWER,
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=UnitOfPower.WATT,
+            has_entity_name=True,
+            value_fn=_as_int,
+        ),
+    ),
+    (
+        FIELD_IFS4,
+        PentairSensorDescription(
+            key="main_pump_speed",
+            name="Main pump speed",
+            icon="mdi:speedometer",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement="RPM",
+            has_entity_name=True,
+            value_fn=_as_int,
+        ),
+    ),
+    (
+        FIELD_IFS6,
+        PentairSensorDescription(
+            key="main_pump_flow",
+            name="Main pump flow",
+            icon="mdi:waves-arrow-right",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement="gal/min",
+            has_entity_name=True,
+            value_fn=_as_int,
         ),
     ),
 )
