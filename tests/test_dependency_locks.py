@@ -27,6 +27,10 @@ PATCHED_FLOOR = {
     "linkify-it": "5.0.2",  # GHSA-22p9-wv53-3rq4, GHSA-v245-v573-v5vm
     "markdown-it": "15.0.3",  # GHSA-253c/6v5v/gfr2/r7fv/vfgh (15.x fix)
     "smol-toml": "1.9.0",  # GHSA-7w5x/r4xh/v3rj (highest fix)
+    # HOM-6003: GHSA-gg6h-894w-4m9c, affected >=2.2.0 <2.8.7. markdownlint
+    # 0.42.0 pins 2.8.6 exactly, so package.json overrides it (to 2.9.1, the
+    # version upstream markdownlint moved to in e862edfa).
+    "re2js": "2.8.7",
 }
 
 
@@ -49,6 +53,19 @@ def test_lockfile_has_no_vulnerable_versions(name: str, floor: str) -> None:
     assert versions, f"{name} missing from package-lock.json"
     for version in versions:
         assert _ver(version) >= _ver(floor), f"{name} {version} < {floor}"
+
+
+@pytest.mark.unit
+def test_re2js_override_is_exact_and_patched() -> None:
+    """The re2js override stays exact, patched, and is what the lock resolves.
+
+    Guards against someone dropping the override when bumping markdownlint
+    while markdownlint still pins a vulnerable re2js.
+    """
+    spec = PACKAGE_JSON["overrides"]["re2js"]
+    assert spec[0].isdigit(), f"re2js override is not exact: {spec}"
+    assert _ver(spec) >= _ver(PATCHED_FLOOR["re2js"])
+    assert _locked_versions("re2js") == [spec]
 
 
 @pytest.mark.unit
