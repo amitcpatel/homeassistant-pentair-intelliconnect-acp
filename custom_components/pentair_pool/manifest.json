@@ -13,7 +13,7 @@
     "pycognito"
   ],
   "requirements": [
-    "pycognito>=2024.5.1"
+    "pycognito==2024.5.1"
   ],
   "version": "0.3.0+acp-pumps2"
 }
